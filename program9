@@ -1,0 +1,60 @@
+import java.util.Arrays;
+import java.util.Comparator;
+class Job {
+    int id;      
+    int deadline; 
+    int profit;   
+    public Job(int id, int deadline, int profit) {
+        this.id = id;
+        this.deadline = deadline;
+        this.profit = profit;
+    }
+}
+public class JobSequencing {
+       public static void jobSequencingWithDeadline(Job[] jobs, int n) {
+        Arrays.sort(jobs, new Comparator<Job>() {
+            @Override
+            public int compare(Job j1, Job j2) {
+                return j2.profit - j1.profit;
+            }
+        });
+        boolean[] slots = new boolean[n];
+        int[] jobSequence = new int[n];
+        Arrays.fill(slots, false);
+        int maxProfit = 0;
+        for (Job job : jobs) {
+            for (int j = Math.min(n, job.deadline) - 1; j >= 0; j--) {
+                if (!slots[j]) {
+                    slots[j] = true;   
+                    jobSequence[j] = job.id; 
+                    maxProfit += job.profit; 
+                    break;
+                }
+            }
+        }
+        System.out.println("Job sequence that maximizes profit:");
+        for (int i = 0; i < n; i++) {
+            if (slots[i]) {
+                System.out.print("Job" + jobSequence[i] + " ");
+            }
+        }
+        System.out.println("\nMaximum profit: " + maxProfit);
+    }
+
+    public static void main(String[] args) {
+        Job[] jobs = {
+            new Job(1, 2, 100),
+            new Job(2, 1, 19),
+            new Job(3, 2, 27),
+            new Job(4, 1, 25),
+            new Job(5, 3, 15)
+        };
+
+        int n = 3; 
+        jobSequencingWithDeadline(jobs, n);
+    }
+}
+Output:
+Job sequence that maximizes profit: 
+Job1 Job3 Job5 
+Maximum profit: 142
