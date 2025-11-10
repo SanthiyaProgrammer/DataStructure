@@ -1,0 +1,54 @@
+CREATE TABLE employeenew1 (
+    eno INT PRIMARY KEY,
+    ename VARCHAR(20),
+    bp DECIMAL(10,2),
+    ta DECIMAL(10,2),
+    pf DECIMAL(10,2),
+    hra DECIMAL(10,2),
+    tax DECIMAL(10,2),
+    salary DECIMAL(10,2)
+);
+GO
+
+CREATE PROCEDURE InsertAndShowEmployee2
+    @eno INT,
+    @ename VARCHAR(20),
+    @bp DECIMAL(10,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE 
+        @ta DECIMAL(10,2),
+        @pf DECIMAL(10,2),
+        @hra DECIMAL(10,2),
+        @tax DECIMAL(10,2),
+        @salary DECIMAL(10,2);
+
+    -- Calculate components
+    SET @ta = @bp * 0.03;
+    SET @pf = @bp * 0.05;
+    SET @hra = @bp * 0.02;
+    SET @tax = @bp * 0.06;
+
+    -- Calculate final salary
+    SET @salary = @bp + @ta - @pf + @hra - @tax;
+
+    -- Insert record
+    INSERT INTO employeenew1 (eno, ename, bp, ta, pf, hra, tax, salary)
+    VALUES (@eno, @ename, @bp, @ta, @pf, @hra, @tax, @salary);
+
+    -- Display all employee records
+    PRINT 'EMPNO | ENAME | BP | TA | PF | HRA | TAX | SALARY';
+    PRINT '--------------------------------------------------';
+
+    SELECT eno, ename, bp, ta, pf, hra, tax, salary
+    FROM employeenew1;
+END;
+GO
+
+EXEC InsertAndShowEmployee2 @eno = 201, @ename = 'Ramesh', @bp = 20000;
+GO
+
+EXEC InsertAndShowEmployee2 @eno = 202, @ename = 'Komal', @bp = 25000;
+GO
