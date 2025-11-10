@@ -1,0 +1,69 @@
+-- Step 1: Create table
+CREATE TABLE e01 (
+    empno INT PRIMARY KEY,
+    empname VARCHAR(50),
+    depart VARCHAR(30),
+    disg VARCHAR(30),
+    salary NUMERIC(10,2),
+    age INT
+);
+GO
+
+-- Step 2: Insert sample data
+INSERT INTO e01 (empno, empname, depart, disg, salary, age)
+VALUES
+(1, 'Ravi', 'HR', 'Manager', 65000.00, 30),
+(2, 'Sneha', 'IT', 'Developer', 55000.00, 26),
+(3, 'Kiran', 'Finance', 'Analyst', 60000.00, 28);
+
+-- Step 3: Create schema
+CREATE SCHEMA emp_pkg1;
+GO
+
+-- Step 4: Create procedure to show employees
+CREATE PROCEDURE emp_pkg1.show_employees
+AS
+BEGIN
+    PRINT 'EMP NO   EMP NAME';
+    PRINT '------------------';
+
+    DECLARE @empno INT, @empname VARCHAR(50);
+    DECLARE emp_cursor CURSOR FOR
+        SELECT empno, empname FROM e01;
+
+    OPEN emp_cursor;
+    FETCH NEXT FROM emp_cursor INTO @empno, @empname;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT CAST(@empno AS VARCHAR(10)) + '   ' + @empname;
+        FETCH NEXT FROM emp_cursor INTO @empno, @empname;
+    END;
+
+    CLOSE emp_cursor;
+    DEALLOCATE emp_cursor;
+END;
+GO
+
+-- Step 5: Create function to count employees
+CREATE FUNCTION emp_pkg1.get_total_employees()
+RETURNS INT
+AS
+BEGIN
+    DECLARE @total INT;
+    SELECT @total = COUNT(*) FROM e01;
+    RETURN @total;
+END;
+GO
+
+-- Step 6: Run the procedure
+EXEC emp_pkg1.show_employees;
+GO
+
+-- Step 7: Run the function
+SELECT emp_pkg1.get_total_employees() AS TotalEmployees;
+GO
+
+-- Step 8: Verify table contents
+SELECT * FROM e01;
+GO
