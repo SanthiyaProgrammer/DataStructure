@@ -1,0 +1,76 @@
+import java.util.*; 
+class Edge { 
+    int source; 
+    int dest; 
+    int weight; 
+    Edge(int source, int dest, int weight) { 
+        this.source = source; 
+        this.dest = dest; 
+        this.weight = weight; 
+    } 
+} 
+ 
+class Graph { 
+    int vertices; 
+    LinkedList<Edge>[] adjacencyList; 
+    Graph(int vertices) { 
+        this.vertices = vertices; 
+        adjacencyList = new LinkedList[vertices]; 
+        for (int i = 0; i < vertices; i++) { 
+            adjacencyList[i] = new LinkedList<>(); 
+        } 
+    } 
+ 
+    void addEdge(int source, int dest, int weight) { 
+        Edge edge = new Edge(source, dest, weight); 
+        adjacencyList[source].add(edge); 
+       
+        adjacencyList[dest].add(new Edge(dest, source, weight));  
+    } 
+    void primMST() { 
+        boolean[] inMST = new boolean[vertices];  
+        PriorityQueue<Edge> priorityQueue = 
+              new PriorityQueue<>(Comparator.comparingInt(e -> e.weight));  
+         
+          List<Edge> mst = new ArrayList<>();  
+        int startVertex = 0;  
+       
+        inMST[startVertex] = true;  
+ 
+        for (Edge edge : adjacencyList[startVertex]) { 
+            priorityQueue.add(edge); 
+        } 
+        while (!priorityQueue.isEmpty()) { 
+            Edge currentEdge = priorityQueue.poll();  
+ 
+            if (!inMST[currentEdge.dest]) { 
+                mst.add(currentEdge);  
+               
+                inMST[currentEdge.dest] = true;  
+                for (Edge edge : adjacencyList[currentEdge.dest]) { 
+                    if (!inMST[edge.dest]) { 
+                        priorityQueue.add(edge); 
+                    } 
+                } 
+            } 
+        } 
+ 
+    
+        System.out.println("Minimum Spanning Tree:"); 
+        for (Edge edge : mst) { 
+            System.out.println("Edge: " + edge.source + " - " 
+                               + edge.dest + " Weight: " + edge.weight); 
+        } 
+    } 
+} 
+ 
+public class PrimAlgorithmExample { 
+    public static void main(String[] args) { 
+        Graph graph = new Graph(4);     
+        graph.addEdge(0, 1, 1);  
+        graph.addEdge(1, 2, 2); 
+        graph.addEdge(2, 3, 3); 
+        graph.addEdge(0, 3, 4); 
+        graph.primMST();  
+    } 
+} 
