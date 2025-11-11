@@ -1,0 +1,186 @@
+import java.util.Scanner;
+
+class Node {
+    int key;
+    Node left, right;
+
+    public Node(int item) {
+        key = item;
+        left = right = null;
+    }
+}
+
+class BST {
+    Node root;
+
+    BST() {
+        root = null;
+    }
+
+    // Insert a node
+    void insert(int key) {
+        root = insertRec(root, key);
+    }
+
+    Node insertRec(Node root, int key) {
+        if (root == null) {
+            root = new Node(key);
+            return root;
+        }
+        if (key < root.key) {
+            root.left = insertRec(root.left, key);
+        } else if (key > root.key) {
+            root.right = insertRec(root.right, key);
+        }
+        return root;
+    }
+
+    // Delete a node
+    void deleteKey(int key) {
+        root = deleteRec(root, key);
+    }
+
+    Node deleteRec(Node root, int key) {
+        if (root == null) return root;
+
+        if (key < root.key) {
+            root.left = deleteRec(root.left, key);
+        } else if (key > root.key) {
+            root.right = deleteRec(root.right, key);
+        } else {
+            // Node with only one child or no child
+            if (root.left == null) return root.right;
+            else if (root.right == null) return root.left;
+
+            // Node with two children: get inorder successor (smallest in right subtree)
+            root.key = minValue(root.right);
+            root.right = deleteRec(root.right, root.key);
+        }
+        return root;
+    }
+
+    int minValue(Node root) {
+        int minv = root.key;
+        while (root.left != null) {
+            root = root.left;
+            minv = root.key;
+        }
+        return minv;
+    }
+
+    // Search a key
+    boolean search(int key) {
+        return searchRec(root, key);
+    }
+
+    boolean searchRec(Node root, int key) {
+        if (root == null) return false;
+        if (root.key == key) return true;
+        return key < root.key ? searchRec(root.left, key) : searchRec(root.right, key);
+    }
+
+    // Display inorder traversal
+    void inorder() {
+        inorderRec(root);
+        System.out.println();
+    }
+
+    void inorderRec(Node root) {
+        if (root != null) {
+            inorderRec(root.left);
+            System.out.print(root.key + " ");
+            inorderRec(root.right);
+        }
+    }
+
+    // Preorder Traversal
+    void preorder() {
+        preorderRec(root);
+        System.out.println();
+    }
+
+    void preorderRec(Node root) {
+        if (root != null) {
+            System.out.print(root.key + " ");
+            preorderRec(root.left);
+            preorderRec(root.right);
+        }
+    }
+
+    // Postorder Traversal
+    void postorder() {
+        postorderRec(root);
+        System.out.println();
+    }
+
+    void postorderRec(Node root) {
+        if (root != null) {
+            postorderRec(root.left);
+            postorderRec(root.right);
+            System.out.print(root.key + " ");
+        }
+    }
+}
+
+public class BinarySearchTree {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        BST tree = new BST();
+        int choice, key;
+
+        while (true) {
+            System.out.println("\n--- Binary Search Tree Operations ---");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete");
+            System.out.println("3. Search");
+            System.out.println("4. Display (Inorder, Preorder, Postorder)");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value to insert: ");
+                    key = sc.nextInt();
+                    tree.insert(key);
+                    System.out.println(key + " inserted.");
+                    break;
+
+                case 2:
+                    System.out.print("Enter value to delete: ");
+                    key = sc.nextInt();
+                    tree.deleteKey(key);
+                    System.out.println(key + " deleted (if existed).");
+                    break;
+
+                case 3:
+                    System.out.print("Enter value to search: ");
+                    key = sc.nextInt();
+                    if (tree.search(key))
+                        System.out.println(key + " found in the tree.");
+                    else
+                        System.out.println(key + " not found.");
+                    break;
+
+                case 4:
+                    System.out.println("Inorder Traversal:");
+                    tree.inorder();
+                    System.out.println("Preorder Traversal:");
+                    tree.preorder();
+                    System.out.println("Postorder Traversal:");
+                    tree.postorder();
+                    break;
+
+                case 5:
+                    System.out.println("Exiting...");
+                    sc.close();
+                    System.exit(0);
+
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+}
+______________________________________________
+
