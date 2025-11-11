@@ -1,0 +1,37 @@
+import java.util.Scanner; 
+public class SumOfSubsets { 
+static int n, target; 
+static int[] set; 
+static boolean found = false; 
+// Backtracking function 
+    static void subsetSum(int i, int sum, String subset) { 
+        if (sum == target) { 
+            System.out.println("Subset found: " + subset); 
+            found = true; 
+            return; 
+        } 
+        if (i == n || sum > target) 
+            return; 
+        // Include current element 
+        subsetSum(i + 1, sum + set[i], subset + set[i] + " "); 
+ 
+        // Exclude current element 
+        subsetSum(i + 1, sum, subset); 
+    } 
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.print("Enter number of elements: "); 
+        n = sc.nextInt(); 
+        set = new int[n]; 
+        System.out.println("Enter the elements:"); 
+        for (int i = 0; i < n; i++) 
+            set[i] = sc.nextInt(); 
+        System.out.print("Enter target sum: "); 
+        target = sc.nextInt(); 
+        System.out.println("Subsets with sum " + target + " are:"); 
+subsetSum(0, 0, ""); 
+if (!found) 
+System.out.println("No subset found."); 
+sc.close(); 
+} 
+}
