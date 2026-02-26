@@ -1,0 +1,138 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+
+public class DijkstraAWTShort extends Frame {
+
+    int[][] cost;
+    int[] x, y, dist, prev;
+    int n, source;
+
+    DijkstraAWTShort(int[][] costMatrix, int sourceNode) {
+
+        cost = costMatrix;
+        n = cost.length;
+        source = sourceNode;
+
+        x = new int[n];
+        y = new int[n];
+        dist = new int[n];
+        prev = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            x[i] = 100 + i * 120;
+            y[i] = 100 + (i % 2) * 150;
+        }
+
+        setSize(600, 400);
+        setVisible(true);
+        setTitle("Dijkstra Shortest Path");
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                dispose();
+            }
+        });
+
+        runDijkstra();
+    }
+
+    void runDijkstra() {
+
+        boolean[] visited = new boolean[n];
+
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(prev, -1);
+
+        dist[source] = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            int u = -1, min = Integer.MAX_VALUE;
+
+            for (int j = 0; j < n; j++) {
+                if (!visited[j] && dist[j] < min) {
+                    min = dist[j];
+                    u = j;
+                }
+            }
+
+            if (u == -1)
+                break;
+
+            visited[u] = true;
+
+            for (int v = 0; v < n; v++) {
+                if (cost[u][v] != 999 &&
+                        dist[u] + cost[u][v] < dist[v]) {
+
+                    dist[v] = dist[u] + cost[u][v];
+                    prev[v] = u;
+                }
+            }
+        }
+
+        repaint();
+    }
+
+    public void paint(Graphics g) {
+
+        g.setFont(new Font("Arial", Font.BOLD, 14));
+
+        for (int i = 0; i < n; i++) {
+
+            for (int j = i + 1; j < n; j++) {
+
+                if (cost[i][j] != 999) {
+
+                    if (prev[j] == i || prev[i] == j)
+                        g.setColor(Color.RED);
+                    else
+                        g.setColor(Color.GRAY);
+
+                    g.drawLine(x[i], y[i], x[j], y[j]);
+
+                    g.setColor(Color.BLACK);
+
+                    g.drawString("" + cost[i][j],
+                            (x[i] + x[j]) / 2,
+                            (y[i] + y[j]) / 2);
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+
+            g.setColor(Color.CYAN);
+            g.fillOval(x[i] - 15, y[i] - 15, 30, 30);
+
+            g.setColor(Color.BLACK);
+            g.drawOval(x[i] - 15, y[i] - 15, 30, 30);
+
+            g.drawString("N" + i,
+                    x[i] - 8,
+                    y[i] + 5);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of nodes: ");
+        int n = sc.nextInt();
+
+        int[][] cost = new int[n][n];
+
+        System.out.println("Enter cost matrix:");
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                cost[i][j] = sc.nextInt();
+
+        System.out.print("Enter source node (0 to " + (n - 1) + "): ");
+        int source = sc.nextInt();
+
+        new DijkstraAWTShort(cost, source);
+    }
+}
