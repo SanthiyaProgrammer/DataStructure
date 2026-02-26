@@ -1,0 +1,85 @@
+//file server
+import java.io.*;
+import java.net.*;
+
+public class FileServer {
+    public static void main(String[] args) {
+        int port = 5000;
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started. Waiting for client...");
+
+            Socket socket = serverSocket.accept();
+            System.out.println("Client Connected");
+
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+            String fileName = dis.readUTF();
+            long fileSize = dis.readLong();
+
+            FileOutputStream fos = new FileOutputStream("received_" + fileName);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            long remaining = fileSize;
+
+            while ((bytesRead = dis.read(buffer, 0, 
+                    (int) Math.min(buffer.length, remaining))) > 0) {
+
+                fos.write(buffer, 0, bytesRead);
+                remaining -= bytesRead;
+
+                if (remaining == 0)
+                    break;
+            }
+
+            System.out.println("File received successfully");
+
+            fos.close();
+            dis.close();
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+=========================================================================================================
+//file client
+import java.io.*;
+import java.net.*;
+
+public class FileClient {
+    public static void main(String[] args) {
+
+        String serverAddress = "localhost";
+        int port = 5000;
+
+        File file = new File("test.txt");
+
+        try (Socket socket = new Socket(serverAddress, port)) {
+
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            FileInputStream fis = new FileInputStream(file);
+
+            // Send file name and file size
+            dos.writeUTF(file.getName());
+            dos.writeLong(file.length());
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = fis.read(buffer)) > 0) {
+                dos.write(buffer, 0, bytesRead);
+            }
+
+            System.out.println("File sent successfully");
+
+            fis.close();
+            dos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
