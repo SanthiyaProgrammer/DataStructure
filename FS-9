@@ -1,0 +1,101 @@
+//index.html------------------------------------------------------------------------
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>React Vite App</title> 
+</head> 
+<body> 
+<div id="root"></div> 
+<script type="module" src="/src/main.jsx"></script> 
+</body> 
+</html>
+
+//app.jsx-----------------------------------------------------------------------------------
+import React, { Component } from "react"; 
+import "./App.css"; 
+class App extends Component { 
+constructor(props) { 
+super(props); 
+this.state = { 
+currentPage: "home", 
+}; 
+} 
+// Function to switch pages 
+switchPage = (page) => { 
+this.setState({ currentPage: page }); 
+  }; 
+ 
+  // Render method to display different pages 
+  render() { 
+    return ( 
+      <div className="container"> 
+        <nav> 
+          <button onClick={() => this.switchPage("home")}>Home</button> 
+          <button onClick={() => this.switchPage("about")}>About</button> 
+        </nav> 
+ 
+        {/* Conditional rendering */} 
+        {this.state.currentPage === "home" ? <HomePage /> : <AboutPage />} 
+      </div> 
+    ); 
+  } 
+} 
+ 
+// Home Page Component 
+class HomePage extends Component { 
+  render() { 
+    return ( 
+      <div> 
+        <h1>Home Page</h1> 
+        <p>Welcome to the home page.</p> 
+      </div> 
+    ); 
+  } 
+} 
+ 
+// About Page Component 
+class AboutPage extends Component { 
+  render() { 
+    return ( 
+<div> 
+<h1>About Page</h1> 
+<p>This is the about page.</p> 
+</div> 
+); 
+} 
+} 
+export default App;
+
+
+//main.jsx----------------------------------------------------------------------------
+import React from "react"; 
+import ReactDOM from "react-dom/client"; 
+import App from "./App"; 
+import "./index.css"; 
+// Rendering the App component 
+ReactDOM.createRoot(document.getElementById("root")).render( 
+<React.StrictMode> 
+<App /> 
+</React.StrictMode> 
+);
+
+//app.css---------------------------------------------------------------------------
+.container { 
+text-align: center; 
+font-family: Arial, sans-serif; 
+} 
+nav { 
+margin-bottom: 20px; 
+} 
+button { 
+margin: 5px; 
+padding: 10px; 
+font-size: 16px; 
+cursor: pointer; 
+} 
+h1 { 
+color: #007bff; 
+} 
+
