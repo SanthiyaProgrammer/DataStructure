@@ -1,0 +1,44 @@
+//index.html file-----------------------------------------------------------------------
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+<title>Vite + React</title> 
+</head> 
+<body> 
+<div id="root"></div> <!-- React will render here --> 
+<script type="module" src="/src/main.jsx"></script> 
+</body> 
+</html>
+
+//src/main.jsx-------------------------------------------------------------------------------
+import React from "react"; 
+import ReactDOM from "react-dom/client"; 
+let count = 0; // Initialize count 
+// Function to update count and re-render the app 
+const updateCount = () => { 
+count += 1; // Increment count 
+renderApp(); // Re-render manually 
+}; 
+// Function to render the React app 
+const renderApp = () => { 
+ReactDOM.createRoot(document.getElementById("root")).render( 
+<React.StrictMode> 
+<div style={{ textAlign: "center", marginTop: "50px" }}> 
+<h1>        
+Welcome to Vite + React</h1> 
+<p>This is a simple front-end React application using React Render.</p> 
+<h2>Count: {count}</h2> {/* Display count */} 
+<button 
+onClick={updateCount} 
+style={{ padding: "10px 20px", fontSize: "16px", cursor: "pointer" }} 
+> 
+Click to Increase Count 
+</button> 
+</div> 
+</React.StrictMode> 
+); 
+}; 
+// Initial Render 
+renderApp();
