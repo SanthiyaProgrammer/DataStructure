@@ -1,0 +1,120 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.net.*;
+
+public class UDPChatGUI {
+
+    public static void main(String[] args) {
+        // Create two chat windows
+        // User 1 listens on port 5000, sends to port 6000
+        new ChatWindow("User 1", 5000, 6000, 100, 100);
+        
+        // User 2 listens on port 6000, sends to port 5000
+        // Position this window at a different location (450, 100)
+        new ChatWindow("User 2", 6000, 5000, 450, 100);
+    }
+}
+
+class ChatWindow extends JFrame {
+    private final JTextArea chatArea;
+    private final JTextField messageField;
+    private final JButton sendButton;
+    private DatagramSocket socket;
+    private final int sendPort;
+    private volatile boolean running = true;
+
+    public ChatWindow(String userName, int listenPort, int sendPort, int x, int y) {
+        super(userName + " Chat Window");
+        this.sendPort = sendPort;
+
+        // GUI Setup
+        chatArea = new JTextArea(20, 50);
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+
+        messageField = new JTextField(40);
+        sendButton = new JButton("Send");
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(messageField, BorderLayout.CENTER);
+        panel.add(sendButton, BorderLayout.EAST);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(panel, BorderLayout.SOUTH);
+
+        pack();
+        setLocation(x, y); // Set window position
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Changed to DISPOSE_ON_CLOSE
+        setVisible(true);
+
+        // Create socket for listening
+        try {
+            socket = new DatagramSocket(listenPort);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Failed to open socket on port " + listenPort + ". Is it in use?", "Error", JOptionPane.ERROR_MESSAGE);
+            dispose();
+            return;
+        }
+
+        // Handle window closing event
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                running = false;
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            }
+        });
+
+        // Thread to listen for incoming messages
+        new Thread(() -> {
+            byte[] buffer = new byte[1024];
+            while (running) {
+                try {
+                    if (socket.isClosed()) break;
+                    
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    socket.receive(packet);
+                    String message = new String(packet.getData(), 0, packet.getLength());
+                    
+                    final String displayMessage = message;
+                    SwingUtilities.invokeLater(() -> chatArea.append("Friend: " + displayMessage + "\n"));
+                } catch (SocketException se) {
+                    // Socket closed
+                    break;
+                } catch (Exception e) {
+                    if (running) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+        // Action Listeners for sending
+        ActionListener sendAction = e -> sendMessage();
+        sendButton.addActionListener(sendAction);
+        messageField.addActionListener(sendAction);
+    }
+
+    private void sendMessage() {
+        String message = messageField.getText().trim();
+        if (!message.isEmpty() && socket != null && !socket.isClosed()) {
+            try {
+                byte[] buffer = message.getBytes();
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
+                        InetAddress.getByName("localhost"), sendPort);
+                socket.send(packet);
+                chatArea.append("Me: " + message + "\n");
+                messageField.setText("");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
