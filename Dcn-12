@@ -1,0 +1,97 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+
+public class RSAAWT extends Frame implements ActionListener {
+
+    private TextField inputField;
+    private TextArea outputArea;
+    private Button encryptionButton, decryptionButton;
+
+    private BigInteger p, q, n, phi, e, d;
+    private SecureRandom random = new SecureRandom();
+
+    public RSAAWT() {
+
+        setTitle("RSA Encryption Decryption");
+        setSize(500, 400);
+        setLayout(new FlowLayout());
+
+        Label label = new Label("Enter Message:");
+        inputField = new TextField(30);
+
+        encryptionButton = new Button("Encrypt");
+        decryptionButton = new Button("Decrypt");
+
+        outputArea = new TextArea(10, 40);
+
+        add(label);
+        add(inputField);
+        add(encryptionButton);
+        add(decryptionButton);
+        add(outputArea);
+
+        encryptionButton.addActionListener(this);
+        decryptionButton.addActionListener(this);
+
+        generateKeys();
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dispose();
+                System.exit(0);
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void generateKeys() {
+
+        p = BigInteger.probablePrime(512, random);
+        q = BigInteger.probablePrime(512, random);
+
+        n = p.multiply(q);
+
+        phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
+
+        e = BigInteger.valueOf(65537);
+
+        d = e.modInverse(phi);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+
+        try {
+
+            if (ae.getSource() == encryptionButton) {
+
+                String message = inputField.getText();
+                BigInteger m = new BigInteger(message.getBytes());
+
+                BigInteger cipher = m.modPow(e, n);
+
+                outputArea.setText("Encrypted Message:\n" + cipher);
+            }
+
+            if (ae.getSource() == decryptionButton) {
+
+                BigInteger cipher = new BigInteger(inputField.getText());
+
+                BigInteger plain = cipher.modPow(d, n);
+
+                String decrypted = new String(plain.toByteArray());
+
+                outputArea.setText("Decrypted Message:\n" + decrypted);
+            }
+
+        } catch (Exception ex) {
+            outputArea.setText("Error: Invalid Input");
+        }
+    }
+
+    public static void main(String args[]) {
+        new RSAAWT();
+    }
+}
