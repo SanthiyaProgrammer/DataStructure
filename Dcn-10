@@ -1,0 +1,183 @@
+import java.awt.*;
+import java.awt.event.*;
+public class CCR extends Frame implements ActionListener {
+
+    Button b1, b2, b3;
+
+    CCR() {
+
+        setTitle("Congestion Control Simulator");
+        setSize(400, 300);
+        setLayout(new FlowLayout());
+
+        Label title = new Label("Select Algorithm");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+
+        b1 = new Button("1. Leaky Bucket");
+        b2 = new Button("2. Token Bucket");
+        b3 = new Button("3. Exit");
+
+        add(title);
+        add(b1);
+        add(b2);
+        add(b3);
+
+        b1.addActionListener(this);
+        b2.addActionListener(this);
+        b3.addActionListener(this);
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                System.exit(0);
+            }
+        });
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == b1) {
+            new LeakyBucketFrame();
+        }
+
+        if (e.getSource() == b2) {
+            new TokenBucketFrame();
+        }
+
+        if (e.getSource() == b3) {
+            System.exit(0);
+        }
+    }
+
+    public static void main(String[] args) {
+        new CCR();
+    }
+}
+class LeakyBucketFrame extends Frame implements ActionListener {
+
+    TextField capacityField, inputField, outputField;
+    TextArea resultArea;
+    Button simulateBtn;
+
+    LeakyBucketFrame() {
+
+        setTitle("Leaky Bucket Simulation");
+        setSize(500, 400);
+        setLayout(new FlowLayout());
+
+        add(new Label("Bucket Capacity:"));
+        capacityField = new TextField(10);
+        add(capacityField);
+
+        add(new Label("Input Packets (comma separated):"));
+        inputField = new TextField(20);
+        add(inputField);
+
+        add(new Label("Output Rate:"));
+        outputField = new TextField(10);
+        add(outputField);
+
+        simulateBtn = new Button("Simulate");
+        add(simulateBtn);
+
+        resultArea = new TextArea(10, 50);
+        add(resultArea);
+
+        simulateBtn.addActionListener(this);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        int capacity = Integer.parseInt(capacityField.getText());
+        int outputRate = Integer.parseInt(outputField.getText());
+        String[] packets = inputField.getText().split(",");
+
+        int bucket = 0;
+        resultArea.setText("");
+
+        for (int i = 0; i < packets.length; i++) {
+
+            int input = Integer.parseInt(packets[i].trim());
+
+            if (bucket + input <= capacity) {
+                bucket += input;
+                resultArea.append("Packets added: " + input + "\n");
+            } else {
+                resultArea.append("Packet overflow! Dropped: " 
+                                  + (bucket + input - capacity) + "\n");
+                bucket = capacity;
+            }
+
+            bucket -= Math.min(bucket, outputRate);
+
+            resultArea.append("Bucket content after leaking: " 
+                              + bucket + "\n\n");
+        }
+    }
+}
+class TokenBucketFrame extends Frame implements ActionListener {
+
+    TextField capacityField, tokenRateField, packetField;
+    TextArea resultArea;
+    Button simulateBtn;
+
+    TokenBucketFrame() {
+
+        setTitle("Token Bucket Simulation");
+        setSize(500, 400);
+        setLayout(new FlowLayout());
+
+        add(new Label("Bucket Capacity:"));
+        capacityField = new TextField(10);
+        add(capacityField);
+
+        add(new Label("Token Generation Rate:"));
+        tokenRateField = new TextField(10);
+        add(tokenRateField);
+
+        add(new Label("Packets (comma separated):"));
+        packetField = new TextField(20);
+        add(packetField);
+
+        simulateBtn = new Button("Simulate");
+        add(simulateBtn);
+
+        resultArea = new TextArea(10, 50);
+        add(resultArea);
+
+        simulateBtn.addActionListener(this);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        int capacity = Integer.parseInt(capacityField.getText());
+        int tokenRate = Integer.parseInt(tokenRateField.getText());
+        String[] packets = packetField.getText().split(",");
+
+        int tokens = capacity;
+        resultArea.setText("");
+
+        for (int i = 0; i < packets.length; i++) {
+
+            tokens = Math.min(capacity, tokens + tokenRate);
+
+            int packet = Integer.parseInt(packets[i].trim());
+
+            if (tokens >= packet) {
+                tokens -= packet;
+                resultArea.append("Packet sent: " + packet + "\n");
+            } else {
+                resultArea.append("Not enough tokens. Packet dropped: " 
+                                  + packet + "\n");
+            }
+
+            resultArea.append("Tokens remaining: " 
+                              + tokens + "\n\n");
+        }
+    }
+}
